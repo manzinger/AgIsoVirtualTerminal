@@ -28,29 +28,9 @@ jobs:
         with:
           name: 'Windows Installer'
           path: build/_CPack_Packages/win64/NSIS/*.exe
-  mac_build:
-    name: MacOS 14 Build
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-tags: true
-          fetch-depth: 0
-      - name: Compile
-        run: |
-          mkdir build
-          cmake -S . -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -Wno-dev
-          cmake --build build --config Release --target package
-      - name: 'Upload OSX Installer'
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'OSX dmg package'
-          path: build/_CPack_Packages/OSX/DragNDrop/*.dmg
-  mac_15_build:
-    name: MacOS 15 Build
-    runs-on: macos-15
+  mac_intel_build:
+    name: MacOS x86_64 Build
+    runs-on: macos-latest-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,13 +43,41 @@ jobs:
           mkdir build
           export CC=$(brew --prefix llvm@18)/bin/clang
           export CXX=$(brew --prefix llvm@18)/bin/clang++
+          export CMAKE_C_FLAGS="-arch x86_64"
+          export CMAKE_CXX_FLAGS="-arch x86_64"
           cmake -S . -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -Wno-dev
           cmake --build build --config Release --target package
-      - name: 'Upload OSX Installer'
+          mv build/_CPack_Packages/OSX/DragNDrop/*.dmg build/_CPack_Packages/OSX/DragNDrop/AgIsoVirtualTerminal-intel.dmg
+      - name: 'Upload OSX Intel Installer'
         uses: actions/upload-artifact@v4
         with:
-          name: 'OSX 15 dmg package'
-          path: build/_CPack_Packages/OSX/DragNDrop/*.dmg
+          name: 'OSX Intel dmg package'
+          path: build/_CPack_Packages/OSX/DragNDrop/AgIsoVirtualTerminal-intel.dmg
+  mac_arm_build:
+    name: MacOS ARM Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+      - name: Compile
+        run: |
+          mkdir build
+          export CC=$(brew --prefix llvm@18)/bin/clang
+          export CXX=$(brew --prefix llvm@18)/bin/clang++
+          export CMAKE_C_FLAGS="-arch arm64"
+          export CMAKE_CXX_FLAGS="-arch arm64"
+          cmake -S . -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -Wno-dev
+          cmake --build build --config Release --target package
+          mv build/_CPack_Packages/OSX/DragNDrop/*.dmg build/_CPack_Packages/OSX/DragNDrop/AgIsoVirtualTerminal-arm64.dmg
+      - name: 'Upload OSX ARM Installer'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'OSX ARM dmg package'
+          path: build/_CPack_Packages/OSX/DragNDrop/AgIsoVirtualTerminal-arm64.dmg
   ubuntu_22_04_build:
     name: Ubuntu 22.04 Build
     runs-on: ubuntu-22.04
