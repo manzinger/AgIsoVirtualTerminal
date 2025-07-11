@@ -61,13 +61,15 @@ jobs:
       - name: Compile
         run: |
           mkdir build
+          export CC=$(brew --prefix llvm@18)/bin/clang
+          export CXX=$(brew --prefix llvm@18)/bin/clang++
           cmake -S . -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -Wno-dev
           cmake --build build --config Release --target package
       - name: 'Upload OSX Installer'
         uses: actions/upload-artifact@v4
         with:
           name: 'OSX dmg package'
-          path: build/_CPack_Packages/OSX/DragNDrop/*.dmg
+          path: build/_CPack_Packages/OSX15/DragNDrop/*.dmg
   ubuntu_22_04_build:
     name: Ubuntu 22.04 Build
     runs-on: ubuntu-22.04
