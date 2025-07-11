@@ -29,8 +29,28 @@ jobs:
           name: 'Windows Installer'
           path: build/_CPack_Packages/win64/NSIS/*.exe
   mac_build:
-    name: MacOS Build
+    name: MacOS 14 Build
     runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-tags: true
+          fetch-depth: 0
+      - name: Compile
+        run: |
+          mkdir build
+          cmake -S . -B build -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -Wno-dev
+          cmake --build build --config Release --target package
+      - name: 'Upload OSX Installer'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'OSX dmg package'
+          path: build/_CPack_Packages/OSX/DragNDrop/*.dmg
+  mac_15_build:
+    name: MacOS 15 Build
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
